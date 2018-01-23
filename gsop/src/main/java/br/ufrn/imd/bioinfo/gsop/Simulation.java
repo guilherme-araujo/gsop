@@ -13,7 +13,6 @@ public class Simulation {
 		Random gerador = new Random();
 		
 		int chosen = gerador.nextInt(nodes.size());
-		int soma = 0;
 		List<Integer> roleta = new LinkedList<>();
 		
 		for(int i = 0; i < nodes.size(); i++){
@@ -32,7 +31,7 @@ public class Simulation {
 		
 	}
 	
-	public static void printTypeCount(List<Node> nodes) {
+	public static String printTypeCount(List<Node> nodes) {
 		int count_a = 0;
     	int count_b = 0;
     	
@@ -44,17 +43,17 @@ public class Simulation {
     		}    		
     	}
     	
-    	System.out.println("A: "+count_a+" B: "+count_b);
+    	return "A: "+count_a+" B: "+count_b;
 	}
 	
-	public static void printAvgFitness(List<Node> nodes) {
+	public static String printAvgFitness(List<Node> nodes) {
 		float sum = 0;
 		
 		for(Node n : nodes) {
 			sum += n.getVal();
 		}
 		
-		System.out.println("Avg. fitness: "+(sum/ (float)nodes.size()) );
+		return "Avg. fitness: "+(sum/ (float)nodes.size()) ;
 	}
 
 }
