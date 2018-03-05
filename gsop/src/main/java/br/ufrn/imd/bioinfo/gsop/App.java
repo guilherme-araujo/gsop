@@ -21,6 +21,53 @@ public class App
 	
 	private static final Driver driver = GraphDatabase.driver( "bolt://10.7.43.2:7687", AuthTokens.basic( "neo4j", "bif$2017" ) );;	
 	
+	public static String runSim(SimulationData simulationData) {
+		
+		List<Node> nodes = new LinkedList<Node>();
+		
+		for(int i = 0; i < simulationData.getInitialPopulation(); i++) {
+			if(i < simulationData.getInitialPopulation()*0.5) {
+				Node n = new Node();
+				n.setType(simulationData.getTypes().get(0).getType());
+				n.setFitness(simulationData.getTypes().get(0).getInitialFitness());
+				nodes.add(n);
+			}else {
+				Node n = new Node();
+				n.setType(simulationData.getTypes().get(1).getType());
+				n.setFitness(simulationData.getTypes().get(1).getInitialFitness());
+				nodes.add(n);
+			}
+		}
+    	
+		int count = 0;
+		
+		Simulation.setSimulationData(simulationData);
+		
+		long tStart = System.currentTimeMillis();
+    	
+    	for(count = 0; count < simulationData.getCycles(); count++) {
+    		/*if(!Simulation.cycleV2(nodes, simulationData.getBirthRate(), simulationData.getDeathRate())) {
+    			limit = true;
+    			break;
+    		}*/
+    		Simulation.cycleV2(nodes, simulationData.getBirthRate(), simulationData.getDeathRate());
+    		//System.out.println((nodes.size()));
+    	}
+    	
+    	long tEnd = System.currentTimeMillis();
+    	long tDelta = tEnd - tStart;
+    	double elapsedSeconds = tDelta / 1000.0;
+		
+    	
+		String result = Simulation.printTypeCount(nodes) + "\n" + Simulation.printAvgFitness(nodes);
+		result += "\n Cycles: "+count+"\nTime: "+elapsedSeconds;
+		/*if(limit) {
+			result += "\n Simulation limted by 20 million nodes.";
+		}*/
+		
+    	return result;
+	}
+	
 	public static String runSim() {
 		List<Node> nodes = new LinkedList<Node>();
     	

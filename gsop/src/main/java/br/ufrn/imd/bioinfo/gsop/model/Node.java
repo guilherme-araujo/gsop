@@ -6,6 +6,7 @@ public class Node {
 	private String type;
 	private String id;
 	private int val;
+	private double fitness;
 	
 	public String getHash() {
 		return hash;
@@ -31,6 +32,13 @@ public class Node {
 	public void setVal(int val) {
 		this.val = val;
 	}
+	public double getFitness() {
+		return fitness;
+	}
+	public void setFitness(double fitness) {
+		this.fitness = fitness;
+	}
+	
 	
 	
 	
