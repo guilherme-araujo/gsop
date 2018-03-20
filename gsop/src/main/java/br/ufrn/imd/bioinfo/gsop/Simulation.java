@@ -1,5 +1,6 @@
 package br.ufrn.imd.bioinfo.gsop;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -9,6 +10,10 @@ import br.ufrn.imd.bioinfo.gsop.model.Node;
 public class Simulation {
 	
 	private static SimulationData simulationData;
+	
+	private static List<Double> partialFitnessAvg;
+	
+	
 	
 	public static void cycle(List<Node> nodes) {
 		
@@ -58,19 +63,27 @@ public class Simulation {
 			count_a = typeCount("A", nodes);
 			count_b = typeCount("B", nodes);
 			
-			double chanceA = ((double)count_a)*simulationData.getTypes().get(0).getInitialFitness();
-			double chanceB = ((double)count_b)*simulationData.getTypes().get(1).getInitialFitness();
+			double chanceA = ((double)count_a)*simulationData.getTypes().get(0).getInitialCoeff();
+			double chanceB = ((double)count_b)*simulationData.getTypes().get(1).getInitialCoeff();
 			
 			int chosen = gerador.nextInt((int)(chanceA+chanceB));
 			Node n = new Node();
 			if(chosen < (int)chanceA) {
 				n.setType(simulationData.getTypes().get(0).getType());
-				n.setFitness(simulationData.getTypes().get(0).getInitialFitness());
+				n.setCoeff(simulationData.getTypes().get(0).getInitialCoeff());
 			}else {
 				n.setType(simulationData.getTypes().get(1).getType());
-				n.setFitness(simulationData.getTypes().get(1).getInitialFitness());
+				n.setCoeff(simulationData.getTypes().get(1).getInitialCoeff());
 			}
 			nodes.add(n);
+			int pivot = gerador.nextInt(nodes.size()-1);
+			for (int i = 0; i < nodes.size(); i++) {
+				if(++pivot>nodes.size()-1) pivot = 0;
+				if(nodes.get(pivot).getType()==n.getType()) {
+					nodes.get(pivot).setFitness(nodes.get(pivot).getFitness()+1);
+					break;
+				}
+			}
 		
 		}
 		
@@ -102,14 +115,33 @@ public class Simulation {
     	return "A: "+count_a+" B: "+count_b;
 	}
 	
-	public static String printAvgFitness(List<Node> nodes) {
+	public static double avgCoeff(List<Node> nodes) {
+		double sum = 0;
+		
+		for(Node n : nodes) {
+			sum += n.getCoeff();
+		}
+		
+		return sum/ (double)nodes.size();
+	}
+	
+	public static String printAvgCoeff(List<Node> nodes) {				
+		return "Avg. coefficient: "+avgCoeff(nodes);
+	}
+	
+	public static double avgFitness(List<Node> nodes) {
 		double sum = 0;
 		
 		for(Node n : nodes) {
 			sum += n.getFitness();
+			
 		}
 		
-		return "Avg. fitness: "+(sum/ (double)nodes.size());
+		return sum / (double)nodes.size();
+	}
+	
+	public static String printAvgFitness(List<Node> nodes) {				
+		return "Avg. fitness: "+avgFitness(nodes);
 	}
 
 	public static SimulationData getSimulationData() {
@@ -118,6 +150,19 @@ public class Simulation {
 
 	public static void setSimulationData(SimulationData simulationData) {
 		Simulation.simulationData = simulationData;
+	}
+
+	public static List<Double> getPartialFitnessAvg() {
+		return partialFitnessAvg;
+	}
+
+	public static void setPartialFitnessAvg(List<Double> partialFitnessAvg) {
+		Simulation.partialFitnessAvg = partialFitnessAvg;
+	}
+	
+	public static void addPartialFitnessAvg(Double avg) {
+		if(partialFitnessAvg ==null) partialFitnessAvg = new ArrayList<Double>();
+		partialFitnessAvg.add(avg);
 	}
 	
 	

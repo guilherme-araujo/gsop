@@ -9,6 +9,8 @@ public class SimulationData {
 	private double deathRate;
 	private List<IndType> types;
 	private int cycles;
+	private int plotDensity;
+	
 	
 	public int getInitialPopulation() {
 		return initialPopulation;
@@ -39,6 +41,12 @@ public class SimulationData {
 	}
 	public void setCycles(int cycles) {
 		this.cycles = cycles;
+	}
+	public int getPlotDensity() {
+		return plotDensity;
+	}
+	public void setPlotDensity(int plotDensity) {
+		this.plotDensity = plotDensity;
 	}
 	
 	

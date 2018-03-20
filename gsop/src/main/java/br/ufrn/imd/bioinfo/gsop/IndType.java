@@ -3,11 +3,11 @@ package br.ufrn.imd.bioinfo.gsop;
 public class IndType {
 	
 	private String type;
-	private double initialFitness;
+	private double initialCoeff;
 	private double initialRatio;
 	
 	public IndType() {
-		initialFitness = 1.0;
+		initialCoeff = 1.0;
 		initialRatio = 0.5;
 		
 	}
@@ -24,12 +24,12 @@ public class IndType {
 		this.type = type;
 	}
 
-	public double getInitialFitness() {
-		return initialFitness;
+	public double getInitialCoeff() {
+		return initialCoeff;
 	}
 
-	public void setInitialFitness(double initialFitness) {
-		this.initialFitness = initialFitness;
+	public void setInitialCoeff(double initialCoeff) {
+		this.initialCoeff = initialCoeff;
 	}
 
 	public double getInitialRatio() {

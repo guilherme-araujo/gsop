@@ -1,11 +1,10 @@
 package br.ufrn.imd.bioinfo.gsop;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.neo4j.driver.v1.AuthTokens;
 import org.neo4j.driver.v1.Driver;
-import org.neo4j.driver.v1.GraphDatabase;
 import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.Session;
 import org.neo4j.driver.v1.StatementResult;
@@ -19,24 +18,26 @@ import br.ufrn.imd.bioinfo.gsop.model.Node;
 public class App 
 {
 	
-	private static final Driver driver = GraphDatabase.driver( "bolt://10.7.43.2:7687", AuthTokens.basic( "neo4j", "bif$2017" ) );;	
+	private static final Driver driver = Neo4jDriverInstance.getDriver();
+	
+	private static List<Integer> typeAPopHistory;
+	private static List<Integer> typeBPopHistory;
 	
 	public static String runSim(SimulationData simulationData) {
 		
 		List<Node> nodes = new LinkedList<Node>();
 		
 		for(int i = 0; i < simulationData.getInitialPopulation(); i++) {
+			Node n = new Node();
+			n.setFitness(0);
 			if(i < simulationData.getInitialPopulation()*0.5) {
-				Node n = new Node();
 				n.setType(simulationData.getTypes().get(0).getType());
-				n.setFitness(simulationData.getTypes().get(0).getInitialFitness());
-				nodes.add(n);
+				n.setCoeff(simulationData.getTypes().get(0).getInitialCoeff());
 			}else {
-				Node n = new Node();
 				n.setType(simulationData.getTypes().get(1).getType());
-				n.setFitness(simulationData.getTypes().get(1).getInitialFitness());
-				nodes.add(n);
+				n.setCoeff(simulationData.getTypes().get(1).getInitialCoeff());
 			}
+			nodes.add(n);
 		}
     	
 		int count = 0;
@@ -45,26 +46,34 @@ public class App
 		
 		long tStart = System.currentTimeMillis();
     	
+		//Contagem parcial de fitness
+		int steps = simulationData.getPlotDensity();
+		int step = simulationData.getCycles()/steps;
+		if(step==0) step++;
+		
+		typeAPopHistory = new ArrayList<Integer>();
+		typeBPopHistory = new ArrayList<Integer>();
+		Simulation.setPartialFitnessAvg(new ArrayList<Double>());
+		
     	for(count = 0; count < simulationData.getCycles(); count++) {
-    		/*if(!Simulation.cycleV2(nodes, simulationData.getBirthRate(), simulationData.getDeathRate())) {
-    			limit = true;
-    			break;
-    		}*/
     		Simulation.cycleV2(nodes, simulationData.getBirthRate(), simulationData.getDeathRate());
+    		
+    		if(count%step == 0) {
+    			Simulation.addPartialFitnessAvg(Simulation.avgFitness(nodes));
+    			typeAPopHistory.add(Simulation.typeCount("A", nodes));
+        		typeBPopHistory.add(Simulation.typeCount("B", nodes));
+    		}
     		//System.out.println((nodes.size()));
     	}
     	
     	long tEnd = System.currentTimeMillis();
     	long tDelta = tEnd - tStart;
     	double elapsedSeconds = tDelta / 1000.0;
-		
-    	
-		String result = Simulation.printTypeCount(nodes) + "\n" + Simulation.printAvgFitness(nodes);
+		    	
+		String result = Simulation.printTypeCount(nodes) + "\n" + Simulation.printAvgCoeff(nodes)
+			+ "\n" + Simulation.printAvgFitness(nodes);
 		result += "\n Cycles: "+count+"\nTime: "+elapsedSeconds;
-		/*if(limit) {
-			result += "\n Simulation limted by 20 million nodes.";
-		}*/
-		
+				
     	return result;
 	}
 	
@@ -102,7 +111,7 @@ public class App
     		Simulation.cycle(nodes);    		
     	}
     	
-    	String result = Simulation.printTypeCount(nodes) + "\n" + Simulation.printAvgFitness(nodes);
+    	String result = Simulation.printTypeCount(nodes) + "\n" + Simulation.printAvgCoeff(nodes);
     	
     	return result;
 	}
@@ -144,10 +153,28 @@ public class App
     	
     	System.out.println(Simulation.printTypeCount(nodes));
     	
-    	System.out.println(Simulation.printAvgFitness(nodes));*/
+    	System.out.println(Simulation.printAvgCoeff(nodes));*/
     	System.out.println(runSim());
     	
     	
     }
+
+	public static List<Integer> getTypeAPopHistory() {
+		return typeAPopHistory;
+	}
+
+	public static void setTypeAPopHistory(List<Integer> typeAPopHistory) {
+		App.typeAPopHistory = typeAPopHistory;
+	}
+
+	public static List<Integer> getTypeBPopHistory() {
+		return typeBPopHistory;
+	}
+
+	public static void setTypeBPopHistory(List<Integer> typeBPopHistory) {
+		App.typeBPopHistory = typeBPopHistory;
+	}
+    
+    
 }
 
