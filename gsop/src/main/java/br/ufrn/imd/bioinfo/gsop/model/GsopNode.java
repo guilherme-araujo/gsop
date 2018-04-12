@@ -1,6 +1,6 @@
 package br.ufrn.imd.bioinfo.gsop.model;
 
-public class Node {
+public class GsopNode {
 	
 	private String hash;
 	private String type;

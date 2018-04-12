@@ -1,4 +1,4 @@
-package br.ufrn.imd.bioinfo.gsop;
+package br.ufrn.imd.bioinfo.gsop.database;
 
 import org.neo4j.driver.v1.AuthTokens;
 import org.neo4j.driver.v1.Driver;

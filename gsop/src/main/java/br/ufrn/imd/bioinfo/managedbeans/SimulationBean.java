@@ -62,18 +62,6 @@ public class SimulationBean implements Serializable {
 		createAreaModel();
 	}
 	
-	/*public SimulationBean() {
-		coeff1 = 1.0;
-		coeff2 = 1.05;
-		simulationData = new SimulationData();
-		simulationData.setBirthRate(1.04);
-		simulationData.setDeathRate(1.02);
-		simulationData.setInitialPopulation(1000);
-		List<IndType> types = new ArrayList<IndType>();
-		
-		simulationData.setTypes(types);
-	}*/
-	
 	public void runSim() {
 		simulationData.setDeathRate(simulationData.getBirthRate());
 		simulationData.getTypes().get(0).setInitialCoeff(coeff1);
@@ -231,7 +219,5 @@ public class SimulationBean implements Serializable {
 		this.areaModel = areaModel;
 	}
 
-	
-	
-		
+			
 }

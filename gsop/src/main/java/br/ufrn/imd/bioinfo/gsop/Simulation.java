@@ -5,17 +5,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-import br.ufrn.imd.bioinfo.gsop.model.Node;
+import br.ufrn.imd.bioinfo.gsop.model.GsopNode;
 
 public class Simulation {
 	
 	private static SimulationData simulationData;
 	
-	private static List<Double> partialFitnessAvg;
+	private static List<Double> partialFitnessAvg;		
 	
-	
-	
-	public static void cycle(List<Node> nodes) {
+	public static void cycle(List<GsopNode> nodes) {
 		
 		Random gerador = new Random();
 		
@@ -31,7 +29,7 @@ public class Simulation {
 		}
 		
 		int chosen2 = gerador.nextInt(roleta.size());
-		Node n = new Node();
+		GsopNode n = new GsopNode();
 		n.setHash(nodes.get(chosen).getHash());
 		n.setType(nodes.get(roleta.get(chosen2)).getType());
 		n.setVal(nodes.get(roleta.get(chosen2)).getVal());
@@ -39,7 +37,7 @@ public class Simulation {
 		
 	}
 	
-	public static void cycleV2(List<Node> nodes, double birthRate, double deathRate) {
+	public static void cycleV2(List<GsopNode> nodes, double birthRate, double deathRate) {
 		
 		Random gerador = new Random();
 		
@@ -67,7 +65,7 @@ public class Simulation {
 			double chanceB = ((double)count_b)*simulationData.getTypes().get(1).getInitialCoeff();
 			
 			int chosen = gerador.nextInt((int)(chanceA+chanceB));
-			Node n = new Node();
+			GsopNode n = new GsopNode();
 			if(chosen < (int)chanceA) {
 				n.setType(simulationData.getTypes().get(0).getType());
 				n.setCoeff(simulationData.getTypes().get(0).getInitialCoeff());
@@ -89,10 +87,10 @@ public class Simulation {
 		
 	}
 	
-	public static int typeCount(String type, List<Node> nodes) {
+	public static int typeCount(String type, List<GsopNode> nodes) {
 		int count = 0;
     	
-    	for(Node n : nodes) {
+    	for(GsopNode n : nodes) {
     		if(n.getType().compareTo(type)==0) {
     			count++;
     		}  		
@@ -100,11 +98,11 @@ public class Simulation {
     	return count;
 	}
 	
-	public static String printTypeCount(List<Node> nodes) {
+	public static String printTypeCount(List<GsopNode> nodes) {
 		int count_a = 0;
     	int count_b = 0;
     	
-    	for(Node n : nodes) {
+    	for(GsopNode n : nodes) {
     		if(n.getType().compareTo("A")==0) {
     			count_a++;
     		}else {
@@ -115,24 +113,24 @@ public class Simulation {
     	return "A: "+count_a+" B: "+count_b;
 	}
 	
-	public static double avgCoeff(List<Node> nodes) {
+	public static double avgCoeff(List<GsopNode> nodes) {
 		double sum = 0;
 		
-		for(Node n : nodes) {
+		for(GsopNode n : nodes) {
 			sum += n.getCoeff();
 		}
 		
 		return sum/ (double)nodes.size();
 	}
 	
-	public static String printAvgCoeff(List<Node> nodes) {				
+	public static String printAvgCoeff(List<GsopNode> nodes) {				
 		return "Avg. coefficient: "+avgCoeff(nodes);
 	}
 	
-	public static double avgFitness(List<Node> nodes) {
+	public static double avgFitness(List<GsopNode> nodes) {
 		double sum = 0;
 		
-		for(Node n : nodes) {
+		for(GsopNode n : nodes) {
 			sum += n.getFitness();
 			
 		}
@@ -140,7 +138,7 @@ public class Simulation {
 		return sum / (double)nodes.size();
 	}
 	
-	public static String printAvgFitness(List<Node> nodes) {				
+	public static String printAvgFitness(List<GsopNode> nodes) {				
 		return "Avg. fitness: "+avgFitness(nodes);
 	}
 

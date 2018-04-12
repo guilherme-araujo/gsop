@@ -9,7 +9,8 @@ import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.Session;
 import org.neo4j.driver.v1.StatementResult;
 
-import br.ufrn.imd.bioinfo.gsop.model.Node;
+import br.ufrn.imd.bioinfo.gsop.database.Neo4jDriverInstance;
+import br.ufrn.imd.bioinfo.gsop.model.GsopNode;
 
 /**
  * Hello world!
@@ -25,10 +26,10 @@ public class App
 	
 	public static String runSim(SimulationData simulationData) {
 		
-		List<Node> nodes = new LinkedList<Node>();
+		List<GsopNode> nodes = new LinkedList<GsopNode>();
 		
 		for(int i = 0; i < simulationData.getInitialPopulation(); i++) {
-			Node n = new Node();
+			GsopNode n = new GsopNode();
 			n.setFitness(0);
 			if(i < simulationData.getInitialPopulation()*0.5) {
 				n.setType(simulationData.getTypes().get(0).getType());
@@ -78,7 +79,7 @@ public class App
 	}
 	
 	public static String runSim() {
-		List<Node> nodes = new LinkedList<Node>();
+		List<GsopNode> nodes = new LinkedList<GsopNode>();
     	
     	try ( Session session = driver.session() ){
 			
@@ -90,7 +91,7 @@ public class App
             {
                 Record record = result.next();
                 
-                Node n = new Node();
+                GsopNode n = new GsopNode();
                 n.setHash(record.get(0).get("uuid").toString());
                 n.setType(record.get(0).get("type").toString());
                 if(n.getType().compareTo("\"A\"")==0) {
