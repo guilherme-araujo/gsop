@@ -1,5 +1,7 @@
 package br.ufrn.imd.bioinfo.gsop.model;
 
+import java.util.List;
+
 public class GsopNode {
 	
 	private String hash;
@@ -8,6 +10,8 @@ public class GsopNode {
 	private int val;
 	private double coeff;
 	private int fitness;
+	
+	private List<String> neighborsHashList;
 	
 	public String getHash() {
 		return hash;
@@ -44,6 +48,12 @@ public class GsopNode {
 	}
 	public void setFitness(int fitness) {
 		this.fitness = fitness;
+	}
+	public List<String> getNeighborsHashList() {
+		return neighborsHashList;
+	}
+	public void setNeighborsHashList(List<String> neighborsHashList) {
+		this.neighborsHashList = neighborsHashList;
 	}
 	
 	

@@ -72,6 +72,16 @@ public class SimulationBean implements Serializable {
 		updateAreaChart();
 	}
 	
+	public void runSimV2() {
+		simulationData.setDeathRate(simulationData.getBirthRate());
+		simulationData.getTypes().get(0).setInitialCoeff(coeff1);
+		simulationData.getTypes().get(1).setInitialCoeff(coeff2);
+		simResult = App.runSimV3(simulationData);
+		lineModel1 = updateLineChart(Simulation.getPartialFitnessAvg());
+		lineModel1.setExtender("ext2");
+		updateAreaChart();
+	}
+	
 	private void createLineModels() {
         lineModel1 = initLinearModel();
         lineModel1.setTitle("Linear Chart");

@@ -44,5 +44,13 @@ public class QueriesController {
 		
 		return nodesAndNeighbours;
 	}
+	
+	public List<String> listAllAsUUIDStringList(){
+		return dao.getAllAsUUIDList();
+	}
+	
+	public List<String> listAllNeighborsAsUUIDStringList(String uuid){
+		return dao.getNeighboursUUIDList(uuid);
+	}
 
 }
