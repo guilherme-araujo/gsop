@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import br.ufrn.imd.bioinfo.gsop.model.Eph;
 import br.ufrn.imd.bioinfo.gsop.model.GsopNode;
 
 public class Simulation {
@@ -14,6 +15,78 @@ public class Simulation {
 
 	private static List<Double> partialFitnessAvg;
 
+	public static void cycleV4(Map<String, GsopNode> nodes, double deathRate) {
+
+		// Contagem de nascimentos e mortes
+		Random gerador = new Random();
+
+		int dieCount = (int) ((double) nodes.size() * (deathRate - 1));
+		if(dieCount==0) dieCount++;
+		// deaths
+		List<String> selectedKeys = new ArrayList<String>();
+		List<String> keys = new ArrayList<String>(nodes.keySet());
+		//System.out.println(dieCount);
+		//System.out.println("Keys size "+keys.size());
+		for (int i = 0; i < dieCount; i++) {
+			int chosen = gerador.nextInt(nodes.size());
+			selectedKeys.add(keys.get(chosen));			
+		}
+		//System.out.println("Selected Keys size"+selectedKeys.size());
+
+		// births
+		for (String key : selectedKeys) {
+			
+			GsopNode n = nodes.get(key);
+			
+			//gerar roleta baseado em vizinhança
+			List<String> roleta = new ArrayList<String>();
+			List<String> neighborsHashList = n.getNeighborsHashList();			
+			
+			for(String s : neighborsHashList) {
+				
+				GsopNode neighbour = nodes.get(s);
+				
+				int qtd = (int)(neighbour.getCoeff()*100.0);
+				for(int i = 0; i < qtd; i++) {
+					roleta.add(s);
+				}
+			}
+			
+			//Remove eph do individuo que morreu
+			Eph eph = n.getEph();
+			n.setEph(null);						
+									
+			//escolher tipo propagado
+			int chosen = gerador.nextInt(roleta.size());	
+			
+			GsopNode sorteado = nodes.get(roleta.get(chosen));
+			sorteado.setFitness(sorteado.getFitness()+1);
+			
+			//substituir tipo do nó
+			n.setCoeff(sorteado.getRawCoeff());
+			n.setType(sorteado.getType());
+			n.setFitness(0);
+			
+			//verifica se o nascido é do tipo gerador, e se vai gerar eph
+			if(n.getType()=="A") {
+				int sorteioGeracao = gerador.nextInt(100);
+				if(sorteioGeracao<(simulationData.getEphBirthGenerationChance()*100)) {
+					n.setEph(new Eph(simulationData.getEphBonus()));
+				}
+			}
+			
+			//sorteia vizinho para ocupar o eph
+			int ephChosen = gerador.nextInt(neighborsHashList.size());
+			//vizinho ocupa o eph caso não tenha um.
+			GsopNode recebedorEph = nodes.get(neighborsHashList.get(ephChosen));
+			if(recebedorEph.getEph()==null) {
+				recebedorEph.setEph(eph);				
+			} 
+			
+		}
+		
+	}
+	
 	public static void cycleV3(Map<String, GsopNode> nodes, double deathRate) {
 
 		// Contagem de nascimentos e mortes

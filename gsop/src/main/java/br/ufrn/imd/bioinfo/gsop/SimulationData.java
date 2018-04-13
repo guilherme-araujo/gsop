@@ -10,7 +10,11 @@ public class SimulationData {
 	private List<IndType> types;
 	private int cycles;
 	private int plotDensity;
+	private double ephBonus;
+	private double ephStartRatio;
+	private double ephBirthGenerationChance;
 	
+	private List<String> nodeDetail;
 	
 	public int getInitialPopulation() {
 		return initialPopulation;
@@ -47,6 +51,30 @@ public class SimulationData {
 	}
 	public void setPlotDensity(int plotDensity) {
 		this.plotDensity = plotDensity;
+	}
+	public double getEphBonus() {
+		return ephBonus;
+	}
+	public void setEphBonus(double ephBonus) {
+		this.ephBonus = ephBonus;
+	}
+	public double getEphStartRatio() {
+		return ephStartRatio;
+	}
+	public void setEphStartRatio(double ephStartRatio) {
+		this.ephStartRatio = ephStartRatio;
+	}
+	public double getEphBirthGenerationChance() {
+		return ephBirthGenerationChance;
+	}
+	public void setEphBirthGenerationChance(double ephBirthGenerationChance) {
+		this.ephBirthGenerationChance = ephBirthGenerationChance;
+	}
+	public List<String> getNodeDetail() {
+		return nodeDetail;
+	}
+	public void setNodeDetail(List<String> nodeDetail) {
+		this.nodeDetail = nodeDetail;
 	}
 	
 	

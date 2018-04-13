@@ -10,6 +10,7 @@ public class GsopNode {
 	private int val;
 	private double coeff;
 	private int fitness;
+	private Eph eph;
 	
 	private List<String> neighborsHashList;
 	
@@ -38,6 +39,12 @@ public class GsopNode {
 		this.val = val;
 	}
 	public double getCoeff() {
+		if(this.getEph()!=null) {
+			return coeff+this.getEph().getBonus();
+		}
+		return coeff;
+	}
+	public double getRawCoeff() {
 		return coeff;
 	}
 	public void setCoeff(double coeff) {
@@ -55,9 +62,11 @@ public class GsopNode {
 	public void setNeighborsHashList(List<String> neighborsHashList) {
 		this.neighborsHashList = neighborsHashList;
 	}
+	public Eph getEph() {
+		return eph;
+	}
+	public void setEph(Eph eph) {
+		this.eph = eph;
+	}
 	
-	
-	
-	
-
 }
