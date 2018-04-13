@@ -74,11 +74,6 @@ public class Neo4jEmbeddedDAO implements Neo4jDAO {
 			while (r.hasNext()) {
 				Map<String, Object> row = r.next();
 
-				// Map<String, Object> nodeDetails = n.getAllProperties();
-				// for ( String key : nodeDetails.keySet() ) {
-				// result.add(key + " : " + nodeDetails.get(key));
-				// }
-				System.out.println(row.keySet());
 				result.add(row.get("n.uuid").toString());
 
 			}
@@ -104,6 +99,17 @@ public class Neo4jEmbeddedDAO implements Neo4jDAO {
 		}
 		
 		return result;
+	}
+	
+	@Override
+	public int getNodeCount() {
+		int total = 0;
+		try (Transaction tx = db.beginTx()) {
+			Result r = db.execute("MATCH (n) return count(*) as total"); 
+			Map<String, Object> row = r.next();
+			total = Integer.parseInt(row.get("total").toString());
+		}
+		return total;
 	}
 
 	@Override

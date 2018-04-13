@@ -23,19 +23,23 @@ public class NewGraphBean implements Serializable {
 	private String result;
 	
 	List<String> generatedNodes;
+	
+	QueriesController queries;
+	
+	NewGraphController newGraph;
 			
 	@PostConstruct
 	public void init() {
 		numNodes = 100;
 		numEdges = 4;
 		result = "";
-		generatedNodes = new ArrayList<String>();
+		queries = new QueriesController();
+		newGraph = new NewGraphController();
+		generatedNodes = queries.listAllAsStringWithNeighbours();
 	}
 	
 	public void generateba() {
-		NewGraphController newGraph = new NewGraphController();
-		QueriesController queries = new QueriesController();
-		
+				
 		newGraph.generateBAGraph(numNodes, numEdges);
 		
 		generatedNodes = queries.listAllAsStringWithNeighbours();		
@@ -67,6 +71,7 @@ public class NewGraphBean implements Serializable {
 	}
 
 	public List<String> getGeneratedNodes() {
+		generatedNodes = queries.listAllAsStringWithNeighbours();
 		return generatedNodes;
 	}
 

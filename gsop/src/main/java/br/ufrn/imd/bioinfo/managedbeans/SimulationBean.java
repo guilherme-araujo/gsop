@@ -18,11 +18,14 @@ import br.ufrn.imd.bioinfo.gsop.App;
 import br.ufrn.imd.bioinfo.gsop.IndType;
 import br.ufrn.imd.bioinfo.gsop.Simulation;
 import br.ufrn.imd.bioinfo.gsop.SimulationData;
+import br.ufrn.imd.bioinfo.gsop.controller.QueriesController;
 
 @ManagedBean(name="simulationBean")
 @SessionScoped
 public class SimulationBean implements Serializable {
 	private static final long serialVersionUID = 1L;
+	
+	private int builtGraphSize = 0;
 	
 	private String simResult;
 	
@@ -33,11 +36,17 @@ public class SimulationBean implements Serializable {
 	
 	private LineChartModel lineModel1;
 	private LineChartModel areaModel;
+	
+	QueriesController queriesController;
 		
 	@PostConstruct
 	public void init() {
 		coeff1 = 1.0;
 		coeff2 = 1.05;
+		
+		queriesController = new QueriesController();
+		builtGraphSize = queriesController.getNodeCount();
+		
 		simulationData = new SimulationData();
 		simulationData.setBirthRate(1.04);
 		simulationData.setDeathRate(1.04);
@@ -72,10 +81,12 @@ public class SimulationBean implements Serializable {
 		updateAreaChart();
 	}
 	
-	public void runSimV2() {
+	public void runSimV3() {
+		this.builtGraphSize = queriesController.getNodeCount();
 		simulationData.setDeathRate(simulationData.getBirthRate());
 		simulationData.getTypes().get(0).setInitialCoeff(coeff1);
 		simulationData.getTypes().get(1).setInitialCoeff(coeff2);
+		simulationData.setInitialPopulation(builtGraphSize);	
 		simResult = App.runSimV3(simulationData);
 		lineModel1 = updateLineChart(Simulation.getPartialFitnessAvg());
 		lineModel1.setExtender("ext2");
@@ -229,5 +240,14 @@ public class SimulationBean implements Serializable {
 		this.areaModel = areaModel;
 	}
 
+	public int getBuiltGraphSize() {
+		return builtGraphSize;
+	}
+
+	public void setBuiltGraphSize(int builtGraphSize) {
+		this.builtGraphSize = builtGraphSize;
+	}
+
+	
 			
 }

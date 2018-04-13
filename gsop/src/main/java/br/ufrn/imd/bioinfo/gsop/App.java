@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.Record;
@@ -14,6 +15,7 @@ import org.neo4j.driver.v1.StatementResult;
 import br.ufrn.imd.bioinfo.gsop.controller.QueriesController;
 import br.ufrn.imd.bioinfo.gsop.database.Neo4jDriverInstance;
 import br.ufrn.imd.bioinfo.gsop.model.GsopNode;
+import edu.emory.mathcs.backport.java.util.Collections;
 
 /**
  * Hello world!
@@ -21,7 +23,7 @@ import br.ufrn.imd.bioinfo.gsop.model.GsopNode;
  */
 public class App {
 
-	private static final Driver driver = Neo4jDriverInstance.getDriver();
+	private static final Driver driver = null;//Neo4jDriverInstance.getDriver();
 
 	private static List<Integer> typeAPopHistory;
 	private static List<Integer> typeBPopHistory;
@@ -35,7 +37,8 @@ public class App {
 		// Popular lista de nós (pre-loading de vizinhos?)
 		List<String> uuidList = new ArrayList<String>();
 		uuidList = queriesController.listAllAsUUIDStringList();
-		
+		long seed = System.nanoTime();
+		Collections.shuffle(uuidList, new Random(seed));
 		for(int i = 0; i < uuidList.size(); i++) {
 			String uuid = uuidList.get(i);
 			GsopNode node = new GsopNode();

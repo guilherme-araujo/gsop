@@ -16,6 +16,8 @@ public interface Neo4jDAO {
 	
 	public List<String> getNeighboursUUIDList(String uuid);
 	
+	public int getNodeCount();
+	
 	// Erdős–Rényi model
 	// Edges: total number of edges
 	public void generateERGraph(int nodes, int edges);

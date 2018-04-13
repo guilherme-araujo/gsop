@@ -53,4 +53,7 @@ public class QueriesController {
 		return dao.getNeighboursUUIDList(uuid);
 	}
 
+	public int getNodeCount() {
+		return dao.getNodeCount();
+	}
 }

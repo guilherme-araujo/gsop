@@ -20,28 +20,47 @@ public class Simulation {
 		Random gerador = new Random();
 
 		int dieCount = (int) ((double) nodes.size() * (deathRate - 1));
-		
+		if(dieCount==0) dieCount++;
 		// deaths
-
 		List<String> selectedKeys = new ArrayList<String>();
 		List<String> keys = new ArrayList<String>(nodes.keySet());
-		// System.out.println(dieCount);
+		//System.out.println(dieCount);
+		//System.out.println("Keys size "+keys.size());
 		for (int i = 0; i < dieCount; i++) {
 			int chosen = gerador.nextInt(nodes.size());
 			selectedKeys.add(keys.get(chosen));			
 		}
+		//System.out.println("Selected Keys size"+selectedKeys.size());
 
 		// births
-		for (String key : keys) {
-			//gerar roleta baseado em vizinhança, acesso ao banco? pre-loading?
+		for (String key : selectedKeys) {
+			//gerar roleta baseado em vizinhança
+			List<String> roleta = new ArrayList<String>();
 			
+			GsopNode n = nodes.get(key);
+			for(String s : n.getNeighborsHashList()) {
+				
+				GsopNode neighbour = nodes.get(s);
+				
+				int qtd = (int)(neighbour.getCoeff()*100.0);
+				for(int i = 0; i < qtd; i++) {
+					roleta.add(s);
+				}
+			}
+									
 			//escolher tipo propagado
+			int chosen = gerador.nextInt(roleta.size());	
+			
+			GsopNode sorteado = nodes.get(roleta.get(chosen));
+			sorteado.setFitness(sorteado.getFitness()+1);
 			
 			//substituir tipo do nó
+			n.setCoeff(sorteado.getCoeff());
+			n.setType(sorteado.getType());
+			n.setFitness(0);
+			
 		}
 		
-		
-
 	}
 
 	public static void cycle(List<GsopNode> nodes) {
@@ -170,7 +189,8 @@ public class Simulation {
 
 		return sum / (double) nodes.size();
 	}
-
+	
+	
 	public static String printAvgFitness(List<GsopNode> nodes) {
 		return "Avg. fitness: " + avgFitness(nodes);
 	}

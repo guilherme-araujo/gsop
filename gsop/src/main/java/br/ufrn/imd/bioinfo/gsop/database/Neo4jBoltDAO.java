@@ -42,6 +42,12 @@ public class Neo4jBoltDAO implements Neo4jDAO{
 	}
 	
 	@Override
+	public int getNodeCount() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	
+	@Override
 	public void generateERGraph(int nodes, int edges) {
 		try (Session session = driver.session()){
 			session.run("CALL apoc.generate.er("+nodes+","+edges+" ,'TMP_LABEL','TMP_REL')");
