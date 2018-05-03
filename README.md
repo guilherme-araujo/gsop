@@ -1,5 +1,4 @@
-
-#Graph Simulator of Populations - GSOP
+# Graph Simulator of Populations - GSOP
 
 Simulator of population dynamics based on graphs
 
