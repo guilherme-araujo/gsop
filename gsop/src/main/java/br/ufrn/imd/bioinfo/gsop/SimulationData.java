@@ -13,6 +13,8 @@ public class SimulationData {
 	private double ephBonus;
 	private double ephStartRatio;
 	private double ephBirthGenerationChance;
+	private boolean neighborhoodInheritance;
+	private boolean aOnly;
 	
 	private List<String> nodeDetail;
 	
@@ -75,6 +77,18 @@ public class SimulationData {
 	}
 	public void setNodeDetail(List<String> nodeDetail) {
 		this.nodeDetail = nodeDetail;
+	}
+	public boolean isNeighborhoodInheritance() {
+		return neighborhoodInheritance;
+	}
+	public void setNeighborhoodInheritance(boolean neighborhoodInheritance) {
+		this.neighborhoodInheritance = neighborhoodInheritance;
+	}
+	public boolean isaOnly() {
+		return aOnly;
+	}
+	public void setaOnly(boolean aOnly) {
+		this.aOnly = aOnly;
 	}
 	
 	

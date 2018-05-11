@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+xmlns:f="http://java.sun.com/jsf/core"
+xmlns:h="http://java.sun.com/jsf/html"
+xmlns:p="http://primefaces.org/ui"
+xmlns:ui="http://java.sun.com/jsf/facelets">
+ 
+<h:head>
+<title>Run Simulation</title>
+<script type="text/javascript">
+    function ext1() {
+    	this.cfg.axes.yaxis.tickOptions = {
+                formatString : '%d'
+            };
+    	this.cfg.axes.xaxis.tickOptions = {
+                formatString : '%d'
+            };
+        
+    }
+    function ext2() {
+    	this.cfg.axes.yaxis.tickOptions = {
+                formatString : '%.3f'
+            };
+    }
+</script>
+</h:head>
+<h:body>
+	
+	<h:outputLabel> Current node count: #{simulationBean.builtGraphSize}</h:outputLabel>
+
+    <h:form>
+    	<p>Replacement rate</p>
+    	<h:inputText value="#{simulationBean.simulationData.birthRate}"/>
+    	<br/>
+    	<!-- <p>Death rate</p>
+    	<h:inputText value="#{simulationBean.simulationData.deathRate}"/>    
+        <br/> -->
+        <p>Cycles</p>
+    	<h:inputText value="#{simulationBean.simulationData.cycles}"/>    
+        <br/>
+        <p>Extended Phenotype (Eph) bonus</p>
+    	<h:inputText value="#{simulationBean.simulationData.ephBonus}"/>    
+        <br/>
+        <p>Eph start ratio</p>
+    	<h:inputText value="#{simulationBean.simulationData.ephStartRatio}"/>    
+        <br/>
+        <p>Eph birth generation chance</p>
+    	<h:inputText value="#{simulationBean.simulationData.ephBirthGenerationChance}"/>    
+        <br/>
+        <p>Plot density</p>
+    	<h:inputText value="#{simulationBean.simulationData.plotDensity}"/>    
+        <br/>
+        <p>Neighborhood inheritance</p>
+    	<h:selectBooleanCheckbox value="#{simulationBean.simulationData.neighborhoodInheritance}"/>    
+        <br/>
+        <p>A type only</p>
+    	<h:selectBooleanCheckbox value="#{simulationBean.simulationData.aOnly}"/>    
+        <br/>
+        <h3>Push button to run simulation</h3>
+        <h:commandButton value="Run" action="#{simulationBean.runSimV5}"></h:commandButton>
+    </h:form>       
+    <br/>
+    <h:outputLabel> #{simulationBean.simResult}</h:outputLabel>
+
+	<p:chart type="line" model="#{simulationBean.lineModel1}" style="height:300px;"/>
+	<p:chart type="line" model="#{simulationBean.areaModel}" style="height:300px"/>
+	
+	<ui:repeat value="#{simulationBean.simulationData.nodeDetail}" var = "node">
+		<h:outputLabel> #{node}</h:outputLabel>
+		<br/>
+	</ui:repeat>
+
+</h:body>
+</html>

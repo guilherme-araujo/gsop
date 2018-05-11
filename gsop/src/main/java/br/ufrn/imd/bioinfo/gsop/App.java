@@ -29,6 +29,106 @@ public class App {
 	private static List<Integer> typeAPopHistory;
 	private static List<Integer> typeBPopHistory;
 
+public static String runSimV5(SimulationData simulationData) {
+		
+		QueriesController queriesController = new QueriesController();
+
+		Map<String, GsopNode> nodes = new HashMap<String, GsopNode>();
+
+		// Popular lista de nós (pre-loading de vizinhos?)
+		List<String> uuidList = new ArrayList<String>();
+		uuidList = queriesController.listAllAsUUIDStringList();
+		long seed = System.nanoTime();
+		Collections.shuffle(uuidList, new Random(seed));
+		for(int i = 0; i < uuidList.size(); i++) {
+			String uuid = uuidList.get(i);
+			GsopNode node = new GsopNode();
+			node.setHash(uuid);
+			double abRate = 0.5;
+			if(simulationData.isaOnly()) {
+				abRate = 1.0;
+			}
+			if (i < simulationData.getInitialPopulation() * abRate) {
+				node.setType(simulationData.getTypes().get(0).getType());
+				node.setCoeff(simulationData.getTypes().get(0).getInitialCoeff());
+				if(i < simulationData.getInitialPopulation() * abRate * simulationData.getEphStartRatio()) {
+					Eph e = new Eph(simulationData.getEphBonus());
+					node.setEph(e);
+				}
+					
+			} else {
+				node.setType(simulationData.getTypes().get(1).getType());
+				node.setCoeff(simulationData.getTypes().get(1).getInitialCoeff());
+				node.setEph(null);				
+			}
+			node.setNeighborsHashList(queriesController.listAllNeighborsAsUUIDStringList(uuid));
+			nodes.put(uuid, node);
+		}
+
+		int count = 0;
+
+		Simulation.setSimulationData(simulationData);
+
+		// Contagem parcial de fitness
+		int steps = simulationData.getPlotDensity();
+		int step = simulationData.getCycles() / steps;
+		if (step == 0)
+			step++;
+
+		typeAPopHistory = new ArrayList<Integer>();
+		typeBPopHistory = new ArrayList<Integer>();
+		Simulation.setPartialFitnessAvg(new ArrayList<Double>());
+
+		long tStart = System.currentTimeMillis();
+		
+		for (count = 0; count < simulationData.getCycles(); count++) {
+			Simulation.cycleV5(nodes, simulationData.getDeathRate(), simulationData.isNeighborhoodInheritance());
+			
+			List<GsopNode> nodeslist = new ArrayList<GsopNode>(nodes.values());
+
+			if (count % step == 0) {
+				Simulation.addPartialFitnessAvg(Simulation.avgFitness(nodeslist));
+				typeAPopHistory.add(Simulation.typeCount("A", nodeslist));
+				typeBPopHistory.add(Simulation.typeCount("B", nodeslist));
+			}
+			// System.out.println((nodes.size()));
+		}
+
+		long tEnd = System.currentTimeMillis();
+		long tDelta = tEnd - tStart;
+		double elapsedSeconds = tDelta / 1000.0;
+
+		List<GsopNode> nodeslist = new ArrayList<GsopNode>(nodes.values());
+		
+		int typeAWithEph = 0;
+		int typeBWithEph = 0;
+		
+		simulationData.setNodeDetail(new ArrayList<String>());
+		
+		for(GsopNode n : nodeslist) {
+			boolean temEph = n.getEph()!=null;
+			String strTemEph = temEph?"S":"N";
+			if(temEph) {
+				if(n.getType().equals("A")) {
+					typeAWithEph++;
+				}else {
+					typeBWithEph++;
+				}
+			}
+			simulationData.getNodeDetail().add(n.getHash()+" temEph: "+strTemEph+" Type: "+n.getType()+
+					" Coeff: "+n.getCoeff()+" Fitness: "+n.getFitness());
+		}
+		
+		String result = Simulation.printTypeCount(nodeslist) + "\n" + Simulation.printAvgCoeff(nodeslist) + "\n"
+				+ Simulation.printAvgFitness(nodeslist);
+		result += "\n Cycles: " + count + "\nTime: " + elapsedSeconds 
+				+ " A with eph: "+typeAWithEph+" B with eph: "+typeBWithEph;
+
+		
+		
+		return result;
+	}
+	
 	public static String runSimV4(SimulationData simulationData) {
 		
 		QueriesController queriesController = new QueriesController();

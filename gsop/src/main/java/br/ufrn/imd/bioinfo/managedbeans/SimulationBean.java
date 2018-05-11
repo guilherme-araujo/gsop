@@ -45,8 +45,10 @@ public class SimulationBean implements Serializable {
 		coeff2 = 1.05;
 		simulationData = new SimulationData();
 		simulationData.setEphBonus(0.05);
-		simulationData.setEphStartRatio(0.1);
+		simulationData.setEphStartRatio(0.5);
 		simulationData.setEphBirthGenerationChance(0.5);
+		simulationData.setaOnly(false);
+		simulationData.setNeighborhoodInheritance(true);
 		queriesController = new QueriesController();
 		builtGraphSize = queriesController.getNodeCount();
 		
@@ -104,6 +106,18 @@ public class SimulationBean implements Serializable {
 		simulationData.getTypes().get(1).setInitialCoeff(1.0);
 		simulationData.setInitialPopulation(builtGraphSize);
 		simResult = App.runSimV4(simulationData);
+		lineModel1 = updateLineChart(Simulation.getPartialFitnessAvg());
+		lineModel1.setExtender("ext2");
+		updateAreaChart();
+	}
+	
+	public void runSimV5() {
+		this.builtGraphSize = queriesController.getNodeCount();
+		simulationData.setDeathRate(simulationData.getBirthRate());
+		simulationData.getTypes().get(0).setInitialCoeff(1.0);
+		simulationData.getTypes().get(1).setInitialCoeff(1.0);
+		simulationData.setInitialPopulation(builtGraphSize);
+		simResult = App.runSimV5(simulationData);
 		lineModel1 = updateLineChart(Simulation.getPartialFitnessAvg());
 		lineModel1.setExtender("ext2");
 		updateAreaChart();

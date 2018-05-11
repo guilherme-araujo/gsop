@@ -8,6 +8,7 @@ import java.util.Random;
 
 import br.ufrn.imd.bioinfo.gsop.model.Eph;
 import br.ufrn.imd.bioinfo.gsop.model.GsopNode;
+import edu.emory.mathcs.backport.java.util.Collections;
 
 public class Simulation {
 
@@ -15,125 +16,280 @@ public class Simulation {
 
 	private static List<Double> partialFitnessAvg;
 
+	public static void cycleV5(Map<String, GsopNode> nodes, double deathRate, boolean neighborhoodInheritance) {
+
+		// Contagem de nascimentos e mortes
+		Random gerador = new Random();
+
+		int dieCount = (int) ((double) nodes.size() * (deathRate - 1));
+		if (dieCount == 0)
+			dieCount++;
+		// deaths
+		List<String> selectedKeys = new ArrayList<String>();
+		List<String> selectedKeysDeath = new ArrayList<String>();
+		List<String> keys = new ArrayList<String>(nodes.keySet());
+		// System.out.println(dieCount);
+		// System.out.println("Keys size "+keys.size());
+		for (int i = 0; i < dieCount; i++) {
+			int chosen = gerador.nextInt(nodes.size());
+			selectedKeys.add(keys.get(chosen));
+		}
+
+		// deaths in case of neighborhood inheritance
+		if (neighborhoodInheritance) {
+			for (int i = 0; i < dieCount; i++) {
+				int chosen = gerador.nextInt(nodes.size());
+				selectedKeysDeath.add(keys.get(chosen));
+			}
+		}
+
+		// births
+		for (String key : selectedKeys) {
+
+			GsopNode n = nodes.get(key);
+
+			// gerar roleta baseado em vizinhança
+			List<String> roleta = new ArrayList<String>();
+			List<String> neighborsHashList = n.getNeighborsHashList();
+
+			for (String s : neighborsHashList) {
+
+				GsopNode neighbour = nodes.get(s);
+
+				int qtd = (int) (neighbour.getCoeff() * 100.0);
+				for (int i = 0; i < qtd; i++) {
+					roleta.add(s);
+				}
+			}
+
+			Eph eph = null;
+
+			if (!neighborhoodInheritance) {
+				// Remove eph do individuo que morreu
+				eph = n.getEph();
+				n.setEph(null);
+			}
+			
+			GsopNode sorteado;
+			if(roleta.size()==0) {
+				System.out.println("Nó sem vizinhos "+key);
+				sorteado = nodes.get(key);
+			}else {
+			// escolher tipo propagado
+				int chosen = gerador.nextInt(roleta.size());
+				sorteado = nodes.get(roleta.get(chosen));
+			}
+			
+			sorteado.setFitness(sorteado.getFitness() + 1);
+
+			if (!neighborhoodInheritance) {
+				// substituir tipo do nó
+				n.setCoeff(sorteado.getRawCoeff());
+				n.setType(sorteado.getType());
+				n.setFitness(0);
+
+				// verifica se o nascido é do tipo gerador, e se vai gerar eph
+				if (n.getType() == "A") {
+					int sorteioGeracao = gerador.nextInt(100);
+					if (sorteioGeracao < (simulationData.getEphBirthGenerationChance() * 100)) {
+						n.setEph(new Eph(simulationData.getEphBonus()));
+					}
+				}
+			} else {
+				// mata nó antigo e aproveita o uuid para o nó que vai nascer
+
+				GsopNode dyingNode = nodes.get(selectedKeysDeath.get(0));
+				String selectedUUID = dyingNode.getHash();
+				for (String neighborUUID : dyingNode.getNeighborsHashList()) {
+					GsopNode neighbor = nodes.get(neighborUUID);
+
+					if (!neighbor.getHash().equals(dyingNode.getHash()))
+						neighbor.getNeighborsHashList().remove(selectedUUID);
+				}
+				nodes.remove(selectedUUID);
+				selectedKeysDeath.remove(0);
+
+				// gera novo nó, atualiza listas de vizinhança e adiciona-o à lista de nós
+				GsopNode newNode = new GsopNode();
+				newNode.setHash(selectedUUID);
+				newNode.setCoeff(sorteado.getRawCoeff());
+				newNode.setType(sorteado.getType());
+				newNode.setFitness(0);
+				List<String> newList = new ArrayList<String>();
+				
+				for(String s : sorteado.getNeighborsHashList()) {
+					if (nodes.containsKey(s))
+						newList.add(s);
+				}
+				if (nodes.containsKey(sorteado.getHash()))
+					newList.add(sorteado.getHash());
+				newNode.setNeighborsHashList(newList);
+
+				if (newNode.getType() == "A") {
+					int sorteioGeracao = gerador.nextInt(100);
+					if (sorteioGeracao < (simulationData.getEphBirthGenerationChance() * 100)) {
+						newNode.setEph(new Eph(simulationData.getEphBonus()));
+					}
+				}
+
+				for (String neighborUUID : newNode.getNeighborsHashList()) {
+					GsopNode neighbor = nodes.get(neighborUUID);
+					if (neighbor == null)
+						System.out.println(neighborUUID + " nulo");
+					neighbor.getNeighborsHashList().add(selectedUUID);
+				}
+
+				nodes.put(selectedUUID, newNode);
+
+			}
+
+			if (!neighborhoodInheritance) {
+				// sorteia vizinho para ocupar o eph
+				int ephChosen = gerador.nextInt(neighborsHashList.size());
+				// vizinho ocupa o eph caso não tenha um.
+
+				GsopNode recebedorEph = nodes.get(neighborsHashList.get(ephChosen));
+				if (recebedorEph.getEph() == null) {
+					recebedorEph.setEph(eph);
+				} else {
+					long seed = System.nanoTime();
+					Collections.shuffle(keys, new Random(seed));
+					for (String k : keys) {
+						recebedorEph = nodes.get(k);
+						if (recebedorEph.getEph() == null) {
+							recebedorEph.setEph(eph);
+							break;
+						}
+					}
+				}
+
+			}
+
+		}
+
+	}
+
 	public static void cycleV4(Map<String, GsopNode> nodes, double deathRate) {
 
 		// Contagem de nascimentos e mortes
 		Random gerador = new Random();
 
 		int dieCount = (int) ((double) nodes.size() * (deathRate - 1));
-		if(dieCount==0) dieCount++;
+		if (dieCount == 0)
+			dieCount++;
 		// deaths
 		List<String> selectedKeys = new ArrayList<String>();
 		List<String> keys = new ArrayList<String>(nodes.keySet());
-		//System.out.println(dieCount);
-		//System.out.println("Keys size "+keys.size());
+		// System.out.println(dieCount);
+		// System.out.println("Keys size "+keys.size());
 		for (int i = 0; i < dieCount; i++) {
 			int chosen = gerador.nextInt(nodes.size());
-			selectedKeys.add(keys.get(chosen));			
+			selectedKeys.add(keys.get(chosen));
 		}
-		//System.out.println("Selected Keys size"+selectedKeys.size());
+		// System.out.println("Selected Keys size"+selectedKeys.size());
 
 		// births
 		for (String key : selectedKeys) {
-			
+
 			GsopNode n = nodes.get(key);
-			
-			//gerar roleta baseado em vizinhança
+
+			// gerar roleta baseado em vizinhança
 			List<String> roleta = new ArrayList<String>();
-			List<String> neighborsHashList = n.getNeighborsHashList();			
-			
-			for(String s : neighborsHashList) {
-				
+			List<String> neighborsHashList = n.getNeighborsHashList();
+
+			for (String s : neighborsHashList) {
+
 				GsopNode neighbour = nodes.get(s);
-				
-				int qtd = (int)(neighbour.getCoeff()*100.0);
-				for(int i = 0; i < qtd; i++) {
+
+				int qtd = (int) (neighbour.getCoeff() * 100.0);
+				for (int i = 0; i < qtd; i++) {
 					roleta.add(s);
 				}
 			}
-			
-			//Remove eph do individuo que morreu
+
+			// Remove eph do individuo que morreu
 			Eph eph = n.getEph();
-			n.setEph(null);						
-									
-			//escolher tipo propagado
-			int chosen = gerador.nextInt(roleta.size());	
-			
+			n.setEph(null);
+
+			// escolher tipo propagado
+			int chosen = gerador.nextInt(roleta.size());
+
 			GsopNode sorteado = nodes.get(roleta.get(chosen));
-			sorteado.setFitness(sorteado.getFitness()+1);
-			
-			//substituir tipo do nó
+			sorteado.setFitness(sorteado.getFitness() + 1);
+
+			// substituir tipo do nó
 			n.setCoeff(sorteado.getRawCoeff());
 			n.setType(sorteado.getType());
 			n.setFitness(0);
-			
-			//verifica se o nascido é do tipo gerador, e se vai gerar eph
-			if(n.getType()=="A") {
+
+			// verifica se o nascido é do tipo gerador, e se vai gerar eph
+			if (n.getType() == "A") {
 				int sorteioGeracao = gerador.nextInt(100);
-				if(sorteioGeracao<(simulationData.getEphBirthGenerationChance()*100)) {
+				if (sorteioGeracao < (simulationData.getEphBirthGenerationChance() * 100)) {
 					n.setEph(new Eph(simulationData.getEphBonus()));
 				}
 			}
-			
-			//sorteia vizinho para ocupar o eph
+
+			// sorteia vizinho para ocupar o eph
 			int ephChosen = gerador.nextInt(neighborsHashList.size());
-			//vizinho ocupa o eph caso não tenha um.
+			// vizinho ocupa o eph caso não tenha um.
 			GsopNode recebedorEph = nodes.get(neighborsHashList.get(ephChosen));
-			if(recebedorEph.getEph()==null) {
-				recebedorEph.setEph(eph);				
-			} 
-			
+			if (recebedorEph.getEph() == null) {
+				recebedorEph.setEph(eph);
+			}
+
 		}
-		
+
 	}
-	
+
 	public static void cycleV3(Map<String, GsopNode> nodes, double deathRate) {
 
 		// Contagem de nascimentos e mortes
 		Random gerador = new Random();
 
 		int dieCount = (int) ((double) nodes.size() * (deathRate - 1));
-		if(dieCount==0) dieCount++;
+		if (dieCount == 0)
+			dieCount++;
 		// deaths
 		List<String> selectedKeys = new ArrayList<String>();
 		List<String> keys = new ArrayList<String>(nodes.keySet());
-		//System.out.println(dieCount);
-		//System.out.println("Keys size "+keys.size());
+		// System.out.println(dieCount);
+		// System.out.println("Keys size "+keys.size());
 		for (int i = 0; i < dieCount; i++) {
 			int chosen = gerador.nextInt(nodes.size());
-			selectedKeys.add(keys.get(chosen));			
+			selectedKeys.add(keys.get(chosen));
 		}
-		//System.out.println("Selected Keys size"+selectedKeys.size());
+		// System.out.println("Selected Keys size"+selectedKeys.size());
 
 		// births
 		for (String key : selectedKeys) {
-			//gerar roleta baseado em vizinhança
+			// gerar roleta baseado em vizinhança
 			List<String> roleta = new ArrayList<String>();
-			
+
 			GsopNode n = nodes.get(key);
-			for(String s : n.getNeighborsHashList()) {
-				
+			for (String s : n.getNeighborsHashList()) {
+
 				GsopNode neighbour = nodes.get(s);
-				
-				int qtd = (int)(neighbour.getCoeff()*100.0);
-				for(int i = 0; i < qtd; i++) {
+
+				int qtd = (int) (neighbour.getCoeff() * 100.0);
+				for (int i = 0; i < qtd; i++) {
 					roleta.add(s);
 				}
 			}
-									
-			//escolher tipo propagado
-			int chosen = gerador.nextInt(roleta.size());	
-			
+
+			// escolher tipo propagado
+			int chosen = gerador.nextInt(roleta.size());
+
 			GsopNode sorteado = nodes.get(roleta.get(chosen));
-			sorteado.setFitness(sorteado.getFitness()+1);
-			
-			//substituir tipo do nó
+			sorteado.setFitness(sorteado.getFitness() + 1);
+
+			// substituir tipo do nó
 			n.setCoeff(sorteado.getCoeff());
 			n.setType(sorteado.getType());
 			n.setFitness(0);
-			
+
 		}
-		
+
 	}
 
 	public static void cycle(List<GsopNode> nodes) {
@@ -262,8 +418,7 @@ public class Simulation {
 
 		return sum / (double) nodes.size();
 	}
-	
-	
+
 	public static String printAvgFitness(List<GsopNode> nodes) {
 		return "Avg. fitness: " + avgFitness(nodes);
 	}
