@@ -1,7 +1,6 @@
 package br.ufrn.imd.bioinfo.managedbeans;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
