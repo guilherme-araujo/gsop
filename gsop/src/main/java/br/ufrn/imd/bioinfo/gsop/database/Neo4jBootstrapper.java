@@ -11,7 +11,7 @@ import javax.servlet.annotation.WebListener;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.kernel.api.exceptions.KernelException;
+import org.neo4j.internal.kernel.api.exceptions.KernelException;
 import org.neo4j.kernel.impl.proc.Procedures;
 import org.neo4j.kernel.internal.GraphDatabaseAPI;
 
@@ -23,9 +23,10 @@ public class Neo4jBootstrapper implements ServletContextListener {
 	@Override
 	public void contextInitialized(ServletContextEvent sce) {
 		System.out.println("Inicializando");
-		File f = new File("/home2/gfaraujo/neo4j-embedded");
+		String neo4jPath = "/home2/gfaraujo/neo4j-embedded";
+		File f = new File(neo4jPath);
 		GraphDatabaseFactory dbFactory = new GraphDatabaseFactory();
-		graphDb = dbFactory.newEmbeddedDatabase(f);
+		graphDb = dbFactory.newEmbeddedDatabaseBuilder(f).loadPropertiesFromFile(neo4jPath+"/neo4j.conf").newGraphDatabase();
 
 		Procedures procedures = ((GraphDatabaseAPI) graphDb).getDependencyResolver().resolveDependency(Procedures.class);
 
